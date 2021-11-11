@@ -14,7 +14,8 @@ It is a simple .NET core console app.  It only supports Windows at the moment.  
 ## Future State
 The app is far from complete but it works fine for my use case.  Depending on how many people use it and request features, I'll consider adding them (or pull request).  Currently the following features are NOT implemented.
 
-+ Setting HID feature reports.  This means that the app cannot currently disable the keyboard/mouse USB devices that the Steam Controller has (desktop mode as it's called).  Ever notice how your controller acts differently in big picture mode?  This is why.
++ ~~Setting HID feature reports.  This means that the app cannot currently disable the keyboard/mouse USB devices that the Steam Controller has (desktop mode as it's called).  Ever notice how your controller acts differently in big picture mode?  This is why.~~  There is now a watchdog, called "FeatureEnforcer" that will set the controller to the settings used in big picture mode.  The watchdog will check the focused window, and whenever the focused window changes, the features are re-sent to the controller.  
+
 
 * Rumble support
 
