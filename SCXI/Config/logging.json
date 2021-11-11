@@ -1,0 +1,6 @@
+﻿{
+  "LogLevel": {
+    "Default": "Information" ,
+    "SCXI.FeatureEnforcer": "Information"
+  }
+}

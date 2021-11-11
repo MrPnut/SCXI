@@ -25,12 +25,14 @@ namespace SCXI
             var controller = client.CreateXbox360Controller();
             controller.Connect();
             TryWaitUntilConnected(controller);
+            controller.AutoSubmitReport = false;
             
             return new XboxControllerAdapter(client, controller);
         }
 
         internal void UpdateState(StateMapping mapping)
         {
+            _controller.ResetReport();
             _controller.SetButtonState(Xbox360Button.A, mapping.A);
             _controller.SetButtonState(Xbox360Button.B, mapping.B);
             _controller.SetButtonState(Xbox360Button.X, mapping.X);
@@ -52,6 +54,7 @@ namespace SCXI
             _controller.SetButtonState(Xbox360Button.Down, mapping.Down);
             _controller.SetButtonState(Xbox360Button.Left, mapping.Left);
             _controller.SetButtonState(Xbox360Button.Right, mapping.Right);
+            _controller.SubmitReport();
         }
 
         private static void TryWaitUntilConnected(IXbox360Controller controller)
@@ -65,11 +68,6 @@ namespace SCXI
                 }
                 catch (Xbox360UserIndexNotReportedException)
                 {
-                    if (i >= 5)
-                    {
-                        throw;
-                    }
-
                     System.Threading.Thread.Sleep(1000);
                 }
             }
@@ -78,8 +76,15 @@ namespace SCXI
         private void Dispose(bool disposing)
         {
             if (!disposing) return;
-            _controller.Disconnect();
-            _client.Dispose();
+            try
+            {
+                _controller.Disconnect();
+                _client.Dispose();
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
         }
 
         public void Dispose()

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Device.Net;
 using Hid.Net.Windows;
 using SCXI.SteamController;
+using SCXI.Config;
 
 namespace SCXI
 {
@@ -14,7 +15,9 @@ namespace SCXI
 
         private readonly XboxControllerAdapter _controllerAdapter;
 
-        private readonly ControllerStateMapper _mapper = new ControllerStateMapper();
+        private readonly FeatureEnforcer _featureEnforcer;
+
+        private readonly ControllerStateMapper _mapper;
 
         private ControllerState _previousState = ControllerState.Initial;
 
@@ -22,13 +25,15 @@ namespace SCXI
 
         public int UserIndex => _controllerAdapter.UserIndex;
 
-        private Scxi(IDevice device, XboxControllerAdapter controllerAdapter)
+        private Scxi(IDevice device, XboxControllerAdapter controllerAdapter, AppConfig config)
         {
             _device = device;
             _controllerAdapter = controllerAdapter;
+            _featureEnforcer = new FeatureEnforcer((WindowsHidDevice)device);
+            _mapper = new ControllerStateMapper(config.Input);
         }
 
-        internal static async Task<Scxi> Create()
+        internal static async Task<Scxi> Create(AppConfig config)
         {
             WindowsHidDeviceFactory.Register(null, null);
 
@@ -41,11 +46,13 @@ namespace SCXI
             var device = devices.Single(d => d.DeviceId.Contains("mi_01"));
             await device.InitializeAsync();
 
-            return new Scxi(device, XboxControllerAdapter.Create());
+            return new Scxi(device, XboxControllerAdapter.Create(), config);
         }
 
         internal async Task Run()
         {
+            _featureEnforcer.Start();
+
             while (true)
             {
                 var report = await _device.ReadAsync();
@@ -67,6 +74,7 @@ namespace SCXI
         private void Dispose(bool disposing)
         {
             if (!disposing) return;
+            _featureEnforcer?.Dispose();
             _device?.Dispose();
             _controllerAdapter?.Dispose();
         }

@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using SCXI.Config;
 
 namespace SCXI
 {
@@ -9,45 +11,49 @@ namespace SCXI
     {
         private static Scxi _scxi;
 
+        private static ILogger<Program> _logger;
+
         internal static async Task Main(string[] args)
         {
+            LoggerFactory.Init(ConfigManager.LoadLoggingConfig());
+            _logger = LoggerFactory.CreateLogger<Program>();
+
+            Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.AboveNormal;
+            
             AppDomain.CurrentDomain.ProcessExit += ProcessExit;
             Console.CancelKeyPress += ProcessExit;
 
-            DrawBanner();
-            _scxi = await Scxi.Create();
+            LogStartup();
+            _scxi = await Scxi.Create(ConfigManager.LoadAppConfig());
 
             using (_scxi)
             {
-                Console.WriteLine($"Created XInput controller with UserIndex {_scxi.UserIndex}");
-                Console.WriteLine("Running.  Cress CTRL+C to exit (and disconnect emulated XInput controller)");
-                Console.WriteLine();
-                
-                await _scxi.Run();
+                _logger.LogInformation($"Created XInput controller with UserIndex {_scxi.UserIndex}");
+                _logger.LogInformation("Running.  Cress CTRL+C to exit (and disconnect emulated XInput controller)");
+
+                try
+                {
+                    await _scxi.Run();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogCritical("Fatal exception occurred", e);
+                    Environment.Exit(1);
+                }
             }
         }
 
-        private static void DrawBanner()
+        private static void LogStartup()
         {
-            Console.WriteLine("   _____ _______  __ ____");
-            Console.WriteLine("  / ___// ____/ |/ //  _/");
-            Console.WriteLine("  \\__ \\/ /    |   / / /  ");
-            Console.WriteLine(" ___/ / /___ /   |_/ /   ");
-            Console.WriteLine("/____/\\____//_/|_/___/   ");
-            Console.WriteLine();
-
             var entryAssembly = Assembly.GetEntryAssembly();
 
-            if (entryAssembly != null)
-            {
-                var info = FileVersionInfo.GetVersionInfo(entryAssembly.Location);
+            if (entryAssembly == null) return;
 
-                Console.WriteLine(info.ProductName);
-                Console.WriteLine($"Version: {info.ProductVersion}");
-                Console.WriteLine(info.CompanyName);
-            }
+            var info = FileVersionInfo.GetVersionInfo(entryAssembly.Location);
 
-            Console.WriteLine();
+            _logger.LogInformation(info.ProductName);
+            _logger.LogInformation($"Version: {info.ProductVersion}");
+            _logger.LogInformation(info.CompanyName);
         }
 
         private static void ProcessExit(object sender, EventArgs e)
