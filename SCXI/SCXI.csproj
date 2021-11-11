@@ -4,9 +4,10 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <Authors>Nick Cavallo</Authors>
-    <Company>https://www.github.com</Company>
+    <Company>https://github.com/MrPnut/SCXI/</Company>
     <Product>SCXI - Steam Controller XInput Adapter</Product>
     <PackageProjectUrl></PackageProjectUrl>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
