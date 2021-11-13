@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Device.Net;
+using Hid.Net;
 using Hid.Net.Windows;
 using SCXI.SteamController;
 using SCXI.Config;
@@ -25,28 +25,27 @@ namespace SCXI
 
         public int UserIndex => _controllerAdapter.UserIndex;
 
-        private Scxi(IDevice device, XboxControllerAdapter controllerAdapter, AppConfig config)
+        private Scxi(IHidDevice device, XboxControllerAdapter controllerAdapter, AppConfig config)
         {
             _device = device;
             _controllerAdapter = controllerAdapter;
-            _featureEnforcer = new FeatureEnforcer((WindowsHidDevice)device);
+            _featureEnforcer = new FeatureEnforcer(device);
             _mapper = new ControllerStateMapper(config.Input);
         }
 
         internal static async Task<Scxi> Create(AppConfig config)
         {
-            WindowsHidDeviceFactory.Register(null, null);
+            var hidFactory = new FilterDeviceDefinition(vendorId: 10462, productId: 4418, label: "Steam Controller")
+                .CreateWindowsHidDeviceFactory();
 
-            var deviceDefinitions = new List<FilterDeviceDefinition>
-            {
-                new FilterDeviceDefinition { DeviceType = DeviceType.Hid, VendorId = 10462, ProductId = 4418, Label = "Steam Controller" }
-            };
+            var deviceDefinitions =
+                await hidFactory.GetConnectedDeviceDefinitionsAsync();
 
-            var devices = await DeviceManager.Current.GetDevicesAsync(deviceDefinitions);
-            var device = devices.Single(d => d.DeviceId.Contains("mi_01"));
+            var device = await hidFactory.GetDeviceAsync(deviceDefinitions.Single(d => d.DeviceId.Contains("mi_01")));
+
             await device.InitializeAsync();
-
-            return new Scxi(device, XboxControllerAdapter.Create(), config);
+            
+            return new Scxi((IHidDevice)device, XboxControllerAdapter.Create(), config);
         }
 
         internal async Task Run()

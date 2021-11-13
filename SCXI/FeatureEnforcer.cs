@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Timers;
-using Hid.Net.Windows;
+using Hid.Net;
 using Microsoft.Extensions.Logging;
 using SCXI.SteamController;
 using Timer = System.Timers.Timer;
@@ -14,11 +14,11 @@ namespace SCXI
 
         private readonly Timer _timer = new Timer(3000);
 
-        private readonly WindowsHidDevice _device;
+        private readonly IHidDevice _device;
 
         private IntPtr _currentWindow = IntPtr.Zero;
 
-        internal FeatureEnforcer(WindowsHidDevice device)
+        internal FeatureEnforcer(IHidDevice device)
         {
             _device = device;
         }
@@ -50,7 +50,7 @@ namespace SCXI
 
             foreach (var feature in Features.BigPictureFocusedFeatures)
             {
-                _device.SetFeature(feature);
+                _device.WriteFeatureReport(feature);
             }
         }
 
