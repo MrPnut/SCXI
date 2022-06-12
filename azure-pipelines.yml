@@ -16,11 +16,12 @@ steps:
     version: '6.0.x'
 
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet build'
+  displayName: 'dotnet publish'
   inputs:
-    command: 'build'
+    command: 'publish'
     configuration: 'Release'
     nugetConfigPath: '$(Build.SourcesDirectory)\nuget.config'
+    projects: '**/*.csproj'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet publish'
