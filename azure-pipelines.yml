@@ -21,14 +21,7 @@ steps:
     command: 'publish'
     configuration: 'Release'
     nugetConfigPath: '$(Build.SourcesDirectory)\nuget.config'
-    projects: '**/*.csproj'
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet publish'
-  inputs:
-    command: 'publish'
-    configuration: 'Release'
-    nugetConfigPath: '$(Build.SourcesDirectory)\nuget.config'
+    publishWebProjects: false
 
 - publish: $(System.DefaultWorkingDirectory)
   artifact: app
