@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Authors>Nick Cavallo</Authors>
     <Company>https://github.com/MrPnut/SCXI/</Company>
     <Product>SCXI - Steam Controller XInput Adapter</Product>
