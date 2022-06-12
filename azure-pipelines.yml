@@ -26,8 +26,8 @@ steps:
   displayName: 'dotnet publish'
   inputs:
     command: 'publish'
-    configuration: 'Release'
-    project: './SCXI/SCXI.csproj'
+    publishWebProjects: false
+    projects: '**/*.csproj'
     
 - publish: $(System.DefaultWorkingDirectory)
   artifact: app
