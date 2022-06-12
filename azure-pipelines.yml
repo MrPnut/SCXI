@@ -9,11 +9,11 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
-#steps:
-#- task: UseDotNet@2
-#  inputs:
-#    packageType: 'sdk'
-#    version: '5.0.x'
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '6.x.x'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build'
