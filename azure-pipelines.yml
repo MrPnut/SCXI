@@ -27,6 +27,7 @@ steps:
   inputs:
     command: 'publish'
     configuration: 'Release'
+    publishWebProjects: false
     
 - publish: $(System.DefaultWorkingDirectory)
   artifact: app
