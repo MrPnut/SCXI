@@ -27,7 +27,7 @@ steps:
   inputs:
     command: 'publish'
     configuration: 'Release'
-    projects: './SCXI/SCXI.csproj'
+    project: './SCXI/SCXI.csproj'
     
 - publish: $(System.DefaultWorkingDirectory)
   artifact: app
